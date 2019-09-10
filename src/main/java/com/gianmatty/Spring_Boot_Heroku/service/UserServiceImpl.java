@@ -1,5 +1,6 @@
 package com.gianmatty.Spring_Boot_Heroku.service;
 
+import com.gianmatty.Spring_Boot_Heroku.dto.ChangePasswordForm;
 import com.gianmatty.Spring_Boot_Heroku.entity.User;
 import com.gianmatty.Spring_Boot_Heroku.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,26 @@ public class UserServiceImpl implements UserService{
     public void deleteUser(Long id) throws Exception {
         User user = getUserById(id);
         repository.delete(user);
+    }
+
+    @Override
+    public User changePassword(ChangePasswordForm form) throws Exception {
+        User user = getUserById(form.getId());
+
+        if ( !user.getPassword().equals(form.getCurrentPassword())) {
+            throw new Exception ("Current Password invalido.");
+        }
+
+        if( user.getPassword().equals(form.getNewPassword())) {
+            throw new Exception ("Nuevo debe ser diferente al password actual.");
+        }
+
+        if( !form.getNewPassword().equals(form.getConfirmPassword())) {
+            throw new Exception ("Nuevo Password y Current Password no coinciden.");
+        }
+
+        user.setPassword(form.getNewPassword());
+        return repository.save(user);
     }
 
 }
