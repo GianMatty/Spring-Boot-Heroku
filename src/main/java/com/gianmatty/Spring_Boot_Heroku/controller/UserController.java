@@ -1,5 +1,7 @@
 package com.gianmatty.Spring_Boot_Heroku.controller;
 
+import javax.validation.Valid;
+
 import com.gianmatty.Spring_Boot_Heroku.entity.User;
 import com.gianmatty.Spring_Boot_Heroku.repository.RoleRepository;
 import com.gianmatty.Spring_Boot_Heroku.service.UserService;
@@ -13,28 +15,25 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.validation.Valid;
-
-
 @Controller
 public class UserController {
 
     @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
     UserService userService;
 
-    @GetMapping({"/","/login"})
+    @Autowired
+    RoleRepository roleRepository;
+
+    @GetMapping("/")
     public String index() {
         return "index";
     }
 
     @GetMapping("/userForm")
-    public String getUserForm(Model model) {
+    public String userForm(Model model) {
         model.addAttribute("userForm", new User());
-        model.addAttribute("roles",roleRepository.findAll());
         model.addAttribute("userList", userService.getAllUsers());
+        model.addAttribute("roles",roleRepository.findAll());
         model.addAttribute("listTab","active");
         return "user-form/user-view";
     }
@@ -107,5 +106,15 @@ public class UserController {
     @GetMapping("/userForm/cancel")
     public String cancelEditUser(ModelMap model) {
         return "redirect:/userForm";
+    }
+
+    @GetMapping("/deleteUser/{id}")
+    public String deleteUser(Model model, @PathVariable(name="id")Long id) {
+        try {
+            userService.deleteUser(id);
+        } catch (Exception e) {
+            model.addAttribute("listErrorMessage",e.getMessage());
+        }
+        return userForm(model);
     }
 }
